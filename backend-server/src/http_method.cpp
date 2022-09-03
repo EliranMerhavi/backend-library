@@ -36,7 +36,7 @@ std::istream& operator>>(std::istream& is, idk::http_method& method)
 	}
 	else
 	{
-		throw std::exception("invalid input");
+		method = idk::http_method::UNKNOWN;
 	}
 
 	return is;

@@ -60,7 +60,6 @@ namespace idk
 		std::unordered_map<route, callback_func> m_routes;
 		callback_func m_default_func;
 
-		std::unordered_set<SOCKET> m_clients;
 		bool m_listening = false;
 
 		SOCKET Accept();

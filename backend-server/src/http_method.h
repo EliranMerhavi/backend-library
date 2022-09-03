@@ -7,7 +7,7 @@ namespace idk
 {
 	enum class http_method
 	{
-		OPTIONS, GET, HEAD, PUT, POST, _DELETE, PATCH
+		OPTIONS, GET, HEAD, PUT, POST, _DELETE, PATCH, UNKNOWN
 	};
 
 	inline std::string to_string(const http_method& method)
@@ -36,6 +36,8 @@ namespace idk
 		case http_method::PATCH:
 			data = "PATCH";
 			break;
+		case http_method::UNKNOWN:
+			data = "UNKNOWN";
 		}
 
 		return data;

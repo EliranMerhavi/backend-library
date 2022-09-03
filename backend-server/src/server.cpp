@@ -15,6 +15,7 @@ namespace idk
 	{
 		if (m_listening)
 		{
+			m_listening = false;
 			freeaddrinfo(m_result);
 			closesocket(listen_socket);
 		}
@@ -65,11 +66,8 @@ namespace idk
 				while (m_listening)
 				{
 					SOCKET client = Accept();
-					if (m_clients.find(client) == m_clients.end())
-					{
-						m_clients.insert(client);
-						std::thread(&server::Handle, this, client).detach();
-					}
+					
+					std::thread(&server::Handle, this, client).detach();
 				}
 			}
 		).detach();
@@ -83,7 +81,8 @@ namespace idk
 
 	void server::set_route(const route& route, const callback_func& func)
 	{
-		m_routes[route] = func;
+		if (route.method != http_method::UNKNOWN)
+			m_routes[route] = func;
 	}
 
 	void server::set_default(const callback_func& func)
@@ -106,21 +105,32 @@ namespace idk
 
 	void server::Handle(SOCKET client)
 	{
-		std::string raw;
 
-		response res;
+		idk::response res;
+		idk::request req;
 
-		raw = recive_data(client, 512);
+		std::string raw(recive_data(client, 512));
 
 		while (raw.find("\r\n\r\n") == raw.npos)
 		{
-			raw += recive_data(client, 1);
+			raw.append(recive_data(client, 1));
 		}
 
-		request req(raw);
-		route route = { req.method, req.path };
+		std::stringstream ss(raw);
+		ss << raw;
+		ss >> req;
 
-		if (m_routes.find(route) != m_routes.end())
+		ss.str(std::string());
+		ss.clear();
+
+		idk::route route{ req.method, req.path };
+
+		if (route.method == idk::http_method::UNKNOWN)
+		{
+			res.status = 400;
+			res.headers["Connection"] = "close";
+		}
+		else if (m_routes.find(route) != m_routes.end())
 		{
 			m_routes[route](req, res);
 		}
@@ -130,11 +140,10 @@ namespace idk
 		}
 		else
 		{
-			res.status = 404;
-			res.payload = "invalid route!";
+			closesocket(client);
+			return;
 		}
 
-		std::stringstream ss;
 		ss << res;
 
 		if (!send_data(client, ss.str()))
@@ -143,7 +152,6 @@ namespace idk
 		}
 
 		closesocket(client);
-		m_clients.erase(client);
 	}
 
 	std::string server::recive_data(const SOCKET& client, int bufflen)

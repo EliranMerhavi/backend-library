@@ -5,7 +5,7 @@ namespace idk
 {
 	struct route
 	{
-		http_method method;
+		const http_method method;
 		const std::string path;
 
 		bool operator==(const route& other) const;

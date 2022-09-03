@@ -1,34 +1,49 @@
 #include "request.h"
 
-namespace idk
+
+std::istream& operator>>(std::istream& is, idk::request& req)
 {
-	request::request(const std::string& raw)
+	std::string line;
+	size_t sep;
+
+	is >> req.method;
+	is >> req.path;
+
+	if ((sep = req.path.find('?')) != req.path.npos)
 	{
-		std::stringstream ss;
-		std::string line;
+		line = req.path.substr(sep + 1);
+		std::regex regex("(\\w+)=?(\\w+)?&?");
+		std::smatch res;
 
-		ss << raw;
-		ss >> this->method;
-		ss >> this->path;
-
-		//TODO: parse the path for params
-		ss.ignore(11);
-
-		std::getline(ss, line);
-
-		while (line != "\r")
+		while (std::regex_search(line, res, regex))
 		{
-			size_t sep = line.find(':');
-			this->headers[line.substr(0, sep)] = line.substr(sep + 2);
-
-			std::getline(ss, line);
+			req.query[res[1]] = (res.size() == 3) ? res[2] : std::string();
+			line = res.suffix();
 		}
 
-		while (std::getline(ss, line))
-		{
-			this->payload += line;
-		}
-
-		std::cout << "payload:\n" << payload << '\n';
+		req.path = req.path.substr(0, sep);
 	}
+
+	
+	is.ignore(11); // ignores " HTTP/1.1\r\n"
+
+	std::getline(is, line);
+
+	while (line != "\r")
+	{
+		sep = line.find_first_of(':');
+		req.headers[line.substr(0, sep)] = line.substr(sep + 2);
+
+		std::getline(is, line);
+	}
+
+	while (std::getline(is, line))
+	{
+		req.payload += line;
+	}
+
+	std::cout << "payload:\n" << req.payload << '\n';
+
+	return is;
 }
+

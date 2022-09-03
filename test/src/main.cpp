@@ -1,5 +1,5 @@
 #include "init.h"
-
+#include <Windows.h>
 #include "json/json.hpp"
 
 using json = nlohmann::json;
@@ -11,12 +11,12 @@ int main()
 		system("pause");
 		return -1;
 	}
-
+	
 	idk::server server;
 
 	server.set_default(
 		[](const idk::request& req, idk::response& res) {
-			res.payload = "cannot " + to_string(req.method) + ' ' + req.path + "!";
+			res.payload = "cannot " + idk::to_string(req.method) + ' ' + req.path + "!";
 		}
 	);
 
@@ -28,7 +28,19 @@ int main()
 
 	server.set_route({ idk::http_method::GET, "/hello" },
 		[](const idk::request& req, idk::response& res) {
-			res.payload = "<h1>hello world</h1>";
+			json obj = {};
+
+			if (req.query.find("test") != req.query.end())
+			{
+				obj["test"] = req.query.at("test");
+			}
+			else
+			{
+				obj["error"] = "'test' query is required";
+			}
+
+			res.payload = obj.dump(1);
+			res.headers["Content-length"] = std::to_string(res.payload.size());
 		}
 	);
 
@@ -40,7 +52,7 @@ int main()
 
 	server.Listen(3000, 
 		[]() {
-			std::cout << "ready! pres any to quit\n";
+			std::cout << "ready! pres enter to quit\n";
 		}
 	);
 

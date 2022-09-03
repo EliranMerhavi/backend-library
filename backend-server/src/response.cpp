@@ -3,7 +3,7 @@
 
 namespace idk
 {
-	response::response() : status(200), headers(), payload("null")
+	response::response() : status(200), headers(), payload()
 	{
 	}
 
@@ -13,13 +13,20 @@ namespace idk
 
 		os << res.status;
 
-		if (res.status == 200)
+		switch (res.status)
 		{
+		case 200:
 			os << " OK";
-		}
-		else if (res.status == 404)
-		{
+			break;
+		case 400:
+			os << " Bad Request";
+			break;
+		case 404:
 			os << " Not Found";
+			break;
+		default:
+			os << " OK";
+			break;
 		}
 
 		os << "\r\n";
