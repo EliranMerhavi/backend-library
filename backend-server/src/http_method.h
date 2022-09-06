@@ -12,35 +12,17 @@ namespace idk
 
 	inline std::string to_string(const http_method& method)
 	{
-		std::string data;
 		switch (method)
 		{
-		case http_method::OPTIONS:
-			data = "OPTIONS";
-			break;
-		case http_method::GET:
-			data = "GET";
-			break;
-		case http_method::HEAD:
-			data = "HEAD";
-			break;
-		case http_method::PUT:
-			data = "PUT";
-			break;
-		case http_method::POST:
-			data = "POST";
-			break;
-		case http_method::_DELETE:
-			data = "_DELETE";
-			break;
-		case http_method::PATCH:
-			data = "PATCH";
-			break;
-		case http_method::UNKNOWN:
-			data = "UNKNOWN";
+		case http_method::OPTIONS: return "OPTIONS";
+		case http_method::GET:     return "GET";
+		case http_method::HEAD:    return "HEAD";
+		case http_method::PUT:	   return "PUT";
+		case http_method::POST:    return "POST";
+		case http_method::_DELETE: return "DELETE";
+		case http_method::PATCH:   return "PATCH";
+		case http_method::UNKNOWN: return "UNKNOWN";
 		}
-
-		return data;
 	}
 }
 

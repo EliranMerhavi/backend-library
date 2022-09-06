@@ -1,7 +1,9 @@
 #pragma once
 #include <unordered_map>
 #include <ostream>
+#include <fstream>
 
+#include "status_code.h"
 
 namespace idk
 {
@@ -10,8 +12,9 @@ namespace idk
 		uint32_t status;
 		std::unordered_map<std::string, std::string> headers;
 		std::string payload;
-
+		
 		response();
+
 		friend std::ostream& operator<<(std::ostream& os, const response& res);
 	};
 }

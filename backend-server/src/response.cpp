@@ -3,7 +3,7 @@
 
 namespace idk
 {
-	response::response() : status(200), headers(), payload()
+	response::response() : status(idk::status_code::OK), headers(), payload()
 	{
 	}
 
@@ -11,23 +11,9 @@ namespace idk
 	{
 		os << "HTTP/1.1 ";
 
-		os << res.status;
+		os << (uint32_t) res.status;
 
-		switch (res.status)
-		{
-		case 200:
-			os << " OK";
-			break;
-		case 400:
-			os << " Bad Request";
-			break;
-		case 404:
-			os << " Not Found";
-			break;
-		default:
-			os << " OK";
-			break;
-		}
+		os << ' ' + idk::to_string(res.status);
 
 		os << "\r\n";
 
@@ -38,7 +24,7 @@ namespace idk
 
 		os << "\r\n";
 		os << res.payload;
-		os << "\r\n\r\n";
+		os << "\r\n";
 
 		return os;
 	}

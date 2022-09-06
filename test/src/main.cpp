@@ -16,7 +16,8 @@ int main()
 
 	server.set_default(
 		[](const idk::request& req, idk::response& res) {
-			res.payload = "cannot " + idk::to_string(req.method) + ' ' + req.path + "!";
+			res.status = idk::status_code::NOT_FOUND;
+			res.payload = ("cannot " + idk::to_string(req.method) + ' ' + req.path + "!");
 		}
 	);
 
@@ -28,7 +29,7 @@ int main()
 
 	server.set_route({ idk::http_method::GET, "/hello" },
 		[](const idk::request& req, idk::response& res) {
-			json obj = {};
+			json obj;
 
 			if (req.query.find("test") != req.query.end())
 			{
@@ -40,7 +41,7 @@ int main()
 			}
 
 			res.payload = obj.dump(1);
-			res.headers["Content-length"] = std::to_string(res.payload.size());
+			res.headers["Content-length"] = res.payload.size();
 		}
 	);
 

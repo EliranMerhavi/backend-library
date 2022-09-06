@@ -42,7 +42,7 @@ std::istream& operator>>(std::istream& is, idk::request& req)
 		req.payload += line;
 	}
 
-	std::cout << "payload:\n" << req.payload << '\n';
+	// std::cout << "payload:\n" << req.payload << '\n';
 
 	return is;
 }

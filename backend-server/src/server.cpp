@@ -105,51 +105,51 @@ namespace idk
 
 	void server::Handle(SOCKET client)
 	{
+		do {
+			idk::response res;
+			idk::request req;
 
-		idk::response res;
-		idk::request req;
+			std::string raw(recive_data(client, 512));
 
-		std::string raw(recive_data(client, 512));
+			while (raw.find("\r\n\r\n") == raw.npos)
+			{
+				raw.append(recive_data(client, 1));
+			}
 
-		while (raw.find("\r\n\r\n") == raw.npos)
-		{
-			raw.append(recive_data(client, 1));
-		}
+			std::stringstream ss(raw);
+			ss << raw;
+			ss >> req;
 
-		std::stringstream ss(raw);
-		ss << raw;
-		ss >> req;
+			ss.str(std::string());
+			ss.clear();
 
-		ss.str(std::string());
-		ss.clear();
+			idk::route route{ req.method, req.path };
 
-		idk::route route{ req.method, req.path };
+			if (route.method == idk::http_method::UNKNOWN)
+			{
+				res.status(status_code::BAD_REQUEST);
+				res.m_headers["Connection"] = "close";
+			}
+			else if (m_routes.find(route) != m_routes.end())
+			{
+				m_routes[route](req, res);
+			}
+			else if (m_default_func)
+			{
+				m_default_func(req, res);
+			}
+			else
+			{
+				res.status(status_code::NOT_FOUND);
+			}
 
-		if (route.method == idk::http_method::UNKNOWN)
-		{
-			res.status = 400;
-			res.headers["Connection"] = "close";
-		}
-		else if (m_routes.find(route) != m_routes.end())
-		{
-			m_routes[route](req, res);
-		}
-		else if (m_default_func)
-		{
-			m_default_func(req, res);
-		}
-		else
-		{
-			closesocket(client);
-			return;
-		}
+			ss << res;
 
-		ss << res;
-
-		if (!send_data(client, ss.str()))
-		{
-			throw std::exception(("error! when sending:\n" + ss.str()).c_str());
-		}
+			if (!send_data(client, ss.str()))
+			{
+				throw std::exception(("error! when sending:\n" + ss.str()).c_str());
+			}
+		} while ();
 
 		closesocket(client);
 	}

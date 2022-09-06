@@ -5,8 +5,8 @@ namespace idk
 {
 	struct route
 	{
-		const http_method method;
-		const std::string path;
+		http_method method;
+		std::string path;
 
 		bool operator==(const route& other) const;
 	};
