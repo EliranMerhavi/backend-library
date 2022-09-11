@@ -41,7 +41,7 @@ int main()
 				obj["error"] = "'test' query is required";
 			}
 
-			res.send(obj.dump(1));
+			res.send(obj);
 		}
 	);
 
