@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "http_method.h"
-
 
 std::istream& operator>>(std::istream& is, idk::http_method& method)
 {

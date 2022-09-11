@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "server.h"
 
 namespace idk
@@ -103,17 +104,20 @@ namespace idk
 		return client;
 	}
 
-	void server::Handle(SOCKET client)
+	void server::Handle(const SOCKET& client)
 	{
-		do {
-			idk::response res;
-			idk::request req;
+		idk::response res;
+		idk::request req;
 
-			std::string raw(recive_data(client, 512));
+		do {
+			res = idk::response();
+			req = idk::request();
+
+			std::string raw(recive_data(client, 4096));
 
 			while (raw.find("\r\n\r\n") == raw.npos)
 			{
-				raw.append(recive_data(client, 1));
+				raw.append(recive_data(client, 4096));
 			}
 
 			std::stringstream ss(raw);
@@ -123,12 +127,11 @@ namespace idk
 			ss.str(std::string());
 			ss.clear();
 
-			idk::route route{ req.method, req.path };
+			idk::route route(req.method, req.path);
 
 			if (route.method == idk::http_method::UNKNOWN)
 			{
-				res.status(status_code::BAD_REQUEST);
-				res.m_headers["Connection"] = "close";
+				res.status(status_code::BAD_REQUEST).close_connection();
 			}
 			else if (m_routes.find(route) != m_routes.end())
 			{
@@ -140,19 +143,21 @@ namespace idk
 			}
 			else
 			{
-				res.status(status_code::NOT_FOUND);
+				res.status(status_code::NOT_FOUND).close_connection();
 			}
 
 			ss << res;
-
 			if (!send_data(client, ss.str()))
 			{
 				throw std::exception(("error! when sending:\n" + ss.str()).c_str());
 			}
-		} while ();
+		} while (res.has_header("Connection") && (res.get_header("Connection") != "close"));
+		
+		std::cout << "exit\n";
 
 		closesocket(client);
 	}
+	
 
 	std::string server::recive_data(const SOCKET& client, int bufflen)
 	{
@@ -177,18 +182,13 @@ namespace idk
 				data += buffer[i];
 			}
 		}
-		else
-		{
-			throw std::exception("read 0 or negative bytes");
-		}
-
+		
 		return data;
 	}
 
 	bool server::send_data(const SOCKET& client, const std::string& data)
 	{
-		int iSendResult = send(client, data.c_str(), data.size(), 0);
-
+		size_t iSendResult = send(client, data.c_str(), data.size(), 0);
 		return iSendResult != SOCKET_ERROR;
 	}
 }

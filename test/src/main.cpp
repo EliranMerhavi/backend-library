@@ -1,5 +1,5 @@
 #include "init.h"
-#include <Windows.h>
+#include <iostream>
 #include "json/json.hpp"
 
 using json = nlohmann::json;
@@ -16,14 +16,15 @@ int main()
 
 	server.set_default(
 		[](const idk::request& req, idk::response& res) {
-			res.status = idk::status_code::NOT_FOUND;
-			res.payload = ("cannot " + idk::to_string(req.method) + ' ' + req.path + "!");
+			res.status(idk::status_code::NOT_FOUND)
+				.send("cannot " + idk::to_string(req.method) + ' ' + req.path + "!");
+			
 		}
 	);
 
 	server.set_route({ idk::http_method::GET, "/" },
 		[](const idk::request& req, idk::response& res) {
-			res.payload = "home page";
+			res.send_file("res/index.html");
 		}
 	);
 
@@ -40,20 +41,19 @@ int main()
 				obj["error"] = "'test' query is required";
 			}
 
-			res.payload = obj.dump(1);
-			res.headers["Content-length"] = res.payload.size();
+			res.send(obj.dump(1));
 		}
 	);
 
 	server.set_route({ idk::http_method::GET, "/test" },
 		[](const idk::request& req, idk::response& res) {
-			res.payload = "<h1>test</h1>";
+			res.send("<h1>test</h1>");
 		}
 	);
 
 	server.Listen(3000, 
 		[]() {
-			std::cout << "ready! pres enter to quit\n";
+			std::cout << "ready! press enter to quit\n";
 		}
 	);
 

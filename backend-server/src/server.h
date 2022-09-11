@@ -1,12 +1,9 @@
 #pragma once
+#include <unordered_map>
+
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <thread>
 #pragma comment(lib, "Ws2_32.lib")
 
 #include "request.h"
@@ -63,7 +60,7 @@ namespace idk
 		bool m_listening = false;
 
 		SOCKET Accept();
-		void Handle(SOCKET client);
+		void Handle(const SOCKET& client);
 
 	private:
 		WSADATA m_wsaData;
