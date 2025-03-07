@@ -10,33 +10,6 @@
 #include "response.h"
 #include "route.h"
 
-/* 
-* HTTP/1.1 200 OK
-* X-Powered-By: Express
-* Content-Type: text/html; charset=utf-8
-* Content-Length: 12
-* ETag: W/"c-QwzjTQIHJO11oZbfwq1nx3dy0Wk"
-* Date: Mon, 29 Aug 2022 13:36:39 GMT
-* Connection: keep-alive
-* Keep-Alive: timeout=5
-*/
-
-/*
-* HTTP/1.1 200 OK
-* X-Powered-By: Express
-* Access-Control-Allow-Origin: *
-* Access-Control-Allow-Methods: *
-* Access-Control-Allow-Headers: *
-* Content-Type: text/html; charset=utf-8
-* Accept-Ranges: bytes
-* Content-Length: 1711
-* ETag: W/"6af-+M4OSPFNZpwKBdFEydrj+1+V5xo"
-* Vary: Accept-Encoding
-* Date: Mon, 29 Aug 2022 13:14:40 GMT
-* Connection: keep-alive
-* Keep-Alive: timeout=5 
-*/
-
 
 typedef void (*callback_func) (const idk::request&, idk::response&);
 
